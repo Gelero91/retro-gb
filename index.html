@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Boy Engine - Prototype</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            background-color: #2d2d2d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: monospace;
+        }
+        
+        #game-container {
+            background-color: #8b956d;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        
+        canvas {
+            background-color: #9BBD0F;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            border: 2px solid #556B2F;
+        }
+        
+        #info {
+            color: #8b956d;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #map-loader {
+            background-color: #556B2F;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            max-width: 640px;
+        }
+        
+        #map-loader h3 {
+            color: #9BBD0F;
+            margin: 0 0 10px 0;
+        }
+        
+        .loader-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .loader-btn {
+            background-color: #0F380F;
+            border: 2px solid #9BBD0F;
+            color: #9BBD0F;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 12px;
+            transition: all 0.2s;
+            border-radius: 4px;
+        }
+        
+        .loader-btn:hover {
+            background-color: #9BBD0F;
+            color: #0F380F;
+        }
+        
+        #map-file {
+            display: none;
+        }
+        
+        #map-list {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+            max-width: 600px;
+        }
+        
+        .map-button {
+            background-color: #306230;
+            padding: 5px 10px;
+            font-size: 11px;
+            border: 1px solid #9BBD0F;
+            color: #9BBD0F;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .map-button.active {
+            background-color: #9BBD0F;
+            color: #0F380F;
+        }
+        
+        .map-button:hover {
+            background-color: #8BAC0F;
+            color: #0F380F;
+        }
+        
+        #status {
+            color: #9BBD0F;
+            font-size: 12px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .error {
+            color: #FF6B6B;
+        }
+        
+        .success {
+            color: #9BBD0F;
+        }
+    </style>
+</head>
+<body>
+    <div id="map-loader">
+        <h3>🗺️ CHARGEUR DE CARTES</h3>
+        <div class="loader-controls">
+            <button class="loader-btn" onclick="loadMapFile()">📂 Charger fichier JSON</button>
+            <button class="loader-btn" onclick="loadFromText()">📋 Coller JSON</button>
+            <button class="loader-btn" onclick="loadDefaultMaps()">🎮 Cartes par défaut</button>
+            <button class="loader-btn" onclick="clearCustomMaps()">🗑️ Effacer cartes custom</button>
+        </div>
+        <input type="file" id="map-file" accept=".json" onchange="handleFileSelect(event)">
+        <div id="map-list"></div>
+        <div id="status"></div>
+    </div>
+    
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- Chargement des scripts dans le bon ordre -->
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    <script src="ui-sprites.js"></script>
+    <script src="font-sprites.js"></script>
+    <script src="state.js"></script>
+    <script src="maps.js"></script>
+    <script src="game.js"></script>
+    <script src="save.js"></script>
+    <script src="ui.js"></script>
+    <script src="combat.js"></script>
+    <script src="render.js"></script>
+    <script src="input.js"></script>
+    <script src="main.js"></script>
+
+</body>
+</html>
