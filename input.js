@@ -175,15 +175,11 @@ document.addEventListener('keydown', (e) => {
                 const selectedIndex = inventoryUI.cursorY * inventoryUI.gridWidth + inventoryUI.cursorX;
                 const selectedItem = inventory.items[selectedIndex];
                 if (selectedItem) {
-                    if (selectedItem.type === 'consumable') {
-                        if (selectedItem.use()) {
-                            inventory.items.splice(selectedIndex, 1);
-                        }
-                        inventoryUI.active = false;
-                    } else if (selectedItem.type === 'weapon' || selectedItem.type === 'armor') {
-                        selectedItem.equip();
-                        inventoryUI.active = false;
+                    if (useItem(selectedItem)) {
+                        // Si consommé, retirer de l'inventaire
+                        inventory.items.splice(selectedIndex, 1);
                     }
+                    inventoryUI.active = false;
                 }
                 break;
             case 'm':

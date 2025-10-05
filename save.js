@@ -1,66 +1,3 @@
-// Démarrer une nouvelle partie
-function startNewGame() {
-    // Réinitialiser toutes les données
-    currentMapId = 0;
-    player.x = 12;
-    player.y = 10;
-    player.renderX = 12;
-    player.renderY = 10;
-    player.targetX = 12;
-    player.targetY = 10;
-    player.moving = false;
-    player.moveProgress = 0;
-    player.animFrame = 0;
-    player.animTimer = 0;
-    player.facing = 'down';
-    player.level = 1;
-    player.hp = 20;
-    player.maxHp = 20;
-    player.mp = 10;
-    player.maxMp = 10;
-    player.attack = 5;
-    player.defense = 3;
-    player.exp = 0;
-    player.expToNext = 10;
-    player.gold = 50;
-    player.equipped.weapon = null;
-    player.equipped.armor = null;
-    player.buffs.shield = 0;
-    
-    // Réinitialiser les cooldowns
-    Object.values(player.skills).forEach(skill => {
-        skill.cooldown = 0;
-    });
-    
-    // Vider l'inventaire et ajouter les objets de départ
-    inventory.items = [];
-    addToInventory('potion');
-    addToInventory('sword');
-    
-    // Réinitialiser les coffres et puzzles
-    Object.keys(chests).forEach(key => delete chests[key]);
-    Object.keys(puzzles.blocks).forEach(key => delete puzzles.blocks[key]);
-    Object.keys(puzzles.switches).forEach(key => delete puzzles.switches[key]);
-    Object.keys(puzzles.sequences).forEach(key => delete puzzles.sequences[key]);
-    Object.keys(puzzles.doors).forEach(key => delete puzzles.doors[key]);
-    
-    // Réinitialiser les cartes (recharger les données par défaut)
-    loadMapData();
-    
-    // Charger les PNJ
-    loadNPCs();
-    
-    // Initialiser les puzzles
-    if (maps[3] && maps[3].puzzle) {
-        const puzzleKey = `${3}-switches`;
-        puzzles.sequences[puzzleKey] = [];
-    }
-    
-    // Démarrer le jeu avec message court
-    gameState = 'playing';
-    startDialogue("BIENVENU! FLECHES: BOUGER A: ACTION M: MENU L: CARTES"); // Message court sur les contrôles
-}
-
 // ============================================
 // SAVE.JS - Système de sauvegarde
 // ============================================
@@ -294,14 +231,4 @@ function deleteSave(slot = 1) {
  */
 function autoSave() {
     return saveGame(0);
-}
-
-// Ajouter un objet à l'inventaire
-function addToInventory(itemKey) {
-    if (inventory.items.length < inventory.maxSize) {
-        const item = { ...itemTypes[itemKey], key: itemKey };
-        inventory.items.push(item);
-        return true;
-    }
-    return false;
 }

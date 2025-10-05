@@ -1,3 +1,7 @@
+// ============================================
+// CONFIG.JS - Configuration et données
+// ============================================
+
 // Configuration du canvas Game Boy
 const SCREEN_WIDTH = 160;
 const SCREEN_HEIGHT = 144;
@@ -24,7 +28,10 @@ const COLORS = {
 const START_WITH_MENU = true; // true = menu principal, false = démarrage direct
 const DEBUG_MODE = false; // Activer pour voir les indicateurs de mouvement des PNJ
 
-// Types d'objets
+// ============================================
+// ITEMS - Données pures (sans logique)
+// ============================================
+
 const itemTypes = {
     potion: {
         name: "Potion",
@@ -32,12 +39,7 @@ const itemTypes = {
         description: "Restaure 10 PV",
         buyPrice: 20,
         sellPrice: 10,
-        use: function() {
-            const healed = Math.min(10, player.maxHp - player.hp);
-            player.hp += healed;
-            startDialogue(`Vous utilisez une Potion. ${healed} PV restaurés !`);
-            return true; // Consommé
-        }
+        healAmount: 10
     },
     sword: {
         name: "Épée",
@@ -45,15 +47,7 @@ const itemTypes = {
         description: "Attaque +3",
         attack: 3,
         buyPrice: 100,
-        sellPrice: 50,
-        equip: function() {
-            if (player.equipped.weapon) {
-                player.attack -= player.equipped.weapon.attack;
-            }
-            player.equipped.weapon = this;
-            player.attack += this.attack;
-            startDialogue("Vous équipez l'Épée. Attaque +3 !");
-        }
+        sellPrice: 50
     },
     shield: {
         name: "Bouclier",
@@ -61,25 +55,14 @@ const itemTypes = {
         description: "Défense +2",
         defense: 2,
         buyPrice: 80,
-        sellPrice: 40,
-        equip: function() {
-            if (player.equipped.armor) {
-                player.defense -= player.equipped.armor.defense;
-            }
-            player.equipped.armor = this;
-            player.defense += this.defense;
-            startDialogue("Vous équipez le Bouclier. Défense +2 !");
-        }
+        sellPrice: 40
     },
     key: {
         name: "Clé",
         type: "key",
         description: "Ouvre les portes verrouillées",
         buyPrice: 50,
-        sellPrice: 0, // Ne peut pas être vendu
-        use: function() {
-            return false; // Ne se consomme pas
-        }
+        sellPrice: 0 // Ne peut pas être vendu
     },
     ether: {
         name: "Éther",
@@ -87,12 +70,7 @@ const itemTypes = {
         description: "Restaure 5 PM",
         buyPrice: 30,
         sellPrice: 15,
-        use: function() {
-            const restored = Math.min(5, player.maxMp - player.mp);
-            player.mp += restored;
-            startDialogue(`Vous utilisez un Éther. ${restored} PM restaurés !`);
-            return true; // Consommé
-        }
+        mpAmount: 5
     },
     herb: {
         name: "Herbe",
@@ -100,14 +78,101 @@ const itemTypes = {
         description: "Restaure 5 PV",
         buyPrice: 10,
         sellPrice: 5,
-        use: function() {
-            const healed = Math.min(5, player.maxHp - player.hp);
-            player.hp += healed;
-            startDialogue(`Vous utilisez une Herbe. ${healed} PV restaurés !`);
-            return true; // Consommé
-        }
+        healAmount: 5
     }
 };
+
+// ============================================
+// FONCTIONS D'UTILISATION DES ITEMS
+// ============================================
+
+/**
+ * Utilise un objet de type consommable
+ * @param {string} itemKey - Clé de l'item (potion, herb, ether)
+ * @returns {boolean} - true si consommé, false sinon
+ */
+function useConsumable(itemKey) {
+    const item = itemTypes[itemKey];
+    
+    if (item.healAmount) {
+        const healed = Math.min(item.healAmount, player.maxHp - player.hp);
+        player.hp += healed;
+        startDialogue(`Vous utilisez ${item.name}. ${healed} PV restaurés !`);
+        return true;
+    }
+    
+    if (item.mpAmount) {
+        const restored = Math.min(item.mpAmount, player.maxMp - player.mp);
+        player.mp += restored;
+        startDialogue(`Vous utilisez ${item.name}. ${restored} PM restaurés !`);
+        return true;
+    }
+    
+    return false;
+}
+
+/**
+ * Équipe une arme
+ * @param {object} weapon - Objet arme avec attack
+ */
+function equipWeapon(weapon) {
+    // Retirer l'arme précédente
+    if (player.equipped.weapon) {
+        player.attack -= player.equipped.weapon.attack;
+    }
+    
+    // Équiper la nouvelle arme
+    player.equipped.weapon = weapon;
+    player.attack += weapon.attack;
+    startDialogue(`Vous équipez ${weapon.name}. Attaque +${weapon.attack} !`);
+}
+
+/**
+ * Équipe une armure
+ * @param {object} armor - Objet armure avec defense
+ */
+function equipArmor(armor) {
+    // Retirer l'armure précédente
+    if (player.equipped.armor) {
+        player.defense -= player.equipped.armor.defense;
+    }
+    
+    // Équiper la nouvelle armure
+    player.equipped.armor = armor;
+    player.defense += armor.defense;
+    startDialogue(`Vous équipez ${armor.name}. Défense +${armor.defense} !`);
+}
+
+/**
+ * Utilise un item (point d'entrée principal)
+ * @param {object} item - L'objet item complet
+ * @returns {boolean} - true si l'item est consommé
+ */
+function useItem(item) {
+    if (item.type === 'consumable') {
+        return useConsumable(item.key);
+    }
+    
+    if (item.type === 'weapon') {
+        equipWeapon(item);
+        return false; // Pas consommé
+    }
+    
+    if (item.type === 'armor') {
+        equipArmor(item);
+        return false; // Pas consommé
+    }
+    
+    if (item.type === 'key') {
+        return false; // Ne se consomme pas
+    }
+    
+    return false;
+}
+
+// ============================================
+// ENNEMIS
+// ============================================
 
 // Types d'ennemis (sans les sprites qui seront ajoutés dans combat.js)
 const enemyTypes = {
