@@ -610,7 +610,7 @@ function drawMainMenu() {
         
         drawUIFrame(ctx, creditsX, creditsY, creditsWidth, creditsHeight, SCALE);
         
-        drawPixelText(ctx, "BY CLAUDE", creditsX + (creditsWidth - measurePixelText("BY CLAUDE")) / 2, creditsY + 12, SCALE, 3);
+        drawPixelText(ctx, "BY GWEN", creditsX + (creditsWidth - measurePixelText("BY GWEN")) / 2, creditsY + 12, SCALE, 3);
         drawPixelText(ctx, "HTML5 GB", creditsX + (creditsWidth - measurePixelText("HTML5 GB")) / 2, creditsY + 22, SCALE, 3);
         drawPixelText(ctx, "B: RETOUR", creditsX + (creditsWidth - measurePixelText("B: RETOUR")) / 2, creditsY + 36, SCALE, 2);
     } else {

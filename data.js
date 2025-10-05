@@ -225,7 +225,6 @@ const PLAYER_SPRITE = [
 ];
 
 // Sprites du joueur avec orientations (AVEC TRANSPARENCE)
-// Sprites du joueur avec orientations (AVEC TRANSPARENCE)
 const PLAYER_SPRITES = {
     down: [ // Orientation vers le bas (face)
         [T,T,T,T,T,3,3,3,3,3,3,T,T,T,T,T],
