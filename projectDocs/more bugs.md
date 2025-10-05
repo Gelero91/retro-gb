@@ -81,8 +81,20 @@ Le jeu propose plusieurs fins basées sur la préparation et l'exécution du rit
 #### Fin neutre 1 : "L'humanité"
 > Le rituel a été exécuté, correctement, et ta demande a été entendue. L'humain a découvert l'origine de la pourriture et nettoie la partie du jardin qui a été touchée. Il ne reste qu'un désert de terre battue à la place, personne n'a été sauvé à proprement parler, mais le mal a été écarté. L'humain est conscient de votre avancée et s'intéresse de plus en plus à vous. Le moindre de vos faits et gestes est à présent scruté. Depuis ce jour, l'ombre de l'humanité est une menace incompréhensible qui est constamment présente. La vie n'est plus jamais la même et vos enfants ne connaîtront pas d'autre monde que celui-là.
 
-#### Fin neutre 2 : "Le soulèvement"
-> Après avoir récupéré tous les artefacts pour le rituel, vous réalisez une chose pourtant évidente : tu as su allier des espèces pour une cause commune, tu t'es entouré d'amis et tous les espoirs se portent sur toi à présent. Pourquoi invoquer un humain, cette entité antédiluvienne, aussi puissante qu'incompréhensible ? Vous faites front commun, et ensemble, vous vous débarrassez de l'origine de la corruption. Vous perdez la vie dans le processus, mais une chose est sûre : votre courte existence va laisser une empreinte durable sur le monde qui vous entoure. Vous ne devez rien à personne. Vos enfants connaîtront la paix et la prospérité.
+#### Fin neutre 2 : "Reine-mère"
+
+Vous êtes devenu une reine. Au-delà des prérogatives biologiques individuelles, vous avez la possibilité et le devoir de créer une nouvelle colonie. Cette terre est morte, l'avenir est ailleurs, et vos ailes vous permettent d'aller le poursuivre. La corruption s'étend, mais reste loin derrière vous. Vous ne savez pas combien de temps il vous reste avant d'être touché par le mal que vous avez fui, mais vous êtes une mère à présent : il ne vous reste plus que l'espoir pour vivre. Allez-vous sacrifier vos enfants, comme un parent indigne ? L'avenir nous le dira. Longue vie à la reine.
+
+#### Fin positive 1 : "Le soulèvement"
+
+Après avoir récupéré tous les artefacts pour le rituel, vous réalisez une chose pourtant évidente : tu as su allier des espèces pour une cause commune, tu t'es entouré d'amis et tous les espoirs se portent sur toi à présent. Pourquoi invoquer un humain, cette entité antédiluvienne, aussi puissante qu'incompréhensible ? Vous faites front commun, et ensemble, vous vous débarrassez de l'origine de la corruption. Vous perdez la vie dans le processus, mais une chose est sûre : votre courte existence va laisser une empreinte durable sur le monde qui vous entoure. Vous ne devez rien à personne. Vos enfants connaîtront la paix et la prospérité.
+
+#### Fin positive 2 : "La métamorphose"
+
+Vous avez accompli l'impossible. Vous êtes devenu une reine, plus encore, une héroïne. Votre dernier combat vous a gravement blessé et vous ne serez plus jamais la même. Sans votre métamorphose, vous auriez sans doute péri... Mais vous êtes en vie. Vos exploits sont légendaires et bien que vous n'ayez pas de décendance, vous laissez derrière vous un monde qui connaitra demain.
+
+#### Fin positive 3 : "L'avenir"
+Vous avez tout donné, jusqu'à votre vie, pour offrir un avenir à autrui. Avant de mourir, vous avez laissé deux oeufs derrière vous, deux de vos enfants qui auront un avenir qui ne connaitra jamais l'horreur de la corruption. Félicitation, vous êtes une héroïne et une mère dévouée.
 
 #### [Bonne fin à définir]
 Préparation complète du rituel avec artefacts humains :
