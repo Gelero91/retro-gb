@@ -421,7 +421,7 @@ function drawSaveMenu() {
     // Slots de sauvegarde
     saveMenu.slots.forEach((slot, index) => {
         const slotY = boxY + 20 + index * 20; // Espacement réduit de 25 à 20
-        const info = saveGame.getInfo(slot);
+        const info = getSaveInfo(slot);;
         
         // Surbrillance
         if (index === saveMenu.selectedSlot) {
@@ -667,7 +667,7 @@ function handleMainMenuAction(action) {
             break;
         case 'load':
             // Ouvrir le menu de chargement
-            if (saveGame.exists(1) || saveGame.exists(2) || saveGame.exists(3)) {
+            if (saveExists(1) || saveExists(2) || saveExists(3)) {
                 mainMenu.selectedOption = 0;
                 showSaveMenu('load');
                 saveMenu.fromMainMenu = true;

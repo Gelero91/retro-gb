@@ -3,7 +3,7 @@ let gameState = START_WITH_MENU ? 'mainMenu' : 'playing'; // 'mainMenu', 'playin
 let currentMapId = 0;
 
 // État du joueur
-const player = {
+let player = {
     x: 12,
     y: 10,
     // Position de rendu pour l'animation
@@ -69,7 +69,7 @@ const player = {
 };
 
 // Menu principal
-const mainMenu = {
+let mainMenu = {
     selectedOption: 0,
     options: [
         { label: "NOUVELLE PARTIE", action: "new" },
@@ -82,17 +82,17 @@ const mainMenu = {
 };
 
 // Système d'inventaire
-const inventory = {
+let inventory = {
     items: [],
     maxSize: 12,
     selectedIndex: 0
 };
 
 // Système de coffres
-const chests = {}; // Stocke l'état des coffres par carte et position
+let chests = {}; // Stocke l'état des coffres par carte et position
 
 // Système de puzzles
-const puzzles = {
+let puzzles = {
     blocks: {}, // Positions des blocs par carte
     switches: {}, // État des interrupteurs par carte
     sequences: {}, // Séquences d'interrupteurs requises
@@ -100,7 +100,7 @@ const puzzles = {
 };
 
 // Système de shop
-const shop = {
+let shop = {
     active: false,
     mode: 'buy', // 'buy' ou 'sell'
     selectedItem: 0,
@@ -110,7 +110,7 @@ const shop = {
 };
 
 // Écran de sélection de sauvegarde
-const saveMenu = {
+let saveMenu = {
     active: false,
     mode: 'save', // 'save' ou 'load'
     selectedSlot: 0,
@@ -120,7 +120,7 @@ const saveMenu = {
 };
 
 // Camera pour le scrolling
-const camera = {
+let camera = {
     x: 0,
     y: 0
 };
@@ -129,7 +129,7 @@ const camera = {
 let npcs = [];
 
 // Système de dialogue
-const dialogue = {
+let dialogue = {
     active: false,
     text: "",
     pages: [],
@@ -140,7 +140,7 @@ const dialogue = {
 };
 
 // Système de menu
-const menu = {
+let menu = {
     active: false,
     selectedOption: 0,
     options: [
@@ -152,7 +152,7 @@ const menu = {
 };
 
 // Système de combat
-const battle = {
+let battle = {
     active: false,
     enemy: null,
     enemyNPC: null, // Référence au PNJ ennemi
@@ -171,7 +171,7 @@ const battle = {
 };
 
 // Interface d'inventaire
-const inventoryUI = {
+let inventoryUI = {
     active: false,
     cursorX: 0,
     cursorY: 0,
@@ -187,4 +187,4 @@ let ctx;
 let maps = {};
 
 // Gestion des inputs
-const keys = {};
+let keys = {};

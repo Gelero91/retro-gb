@@ -61,222 +61,240 @@ function startNewGame() {
     startDialogue("BIENVENU! FLECHES: BOUGER A: ACTION M: MENU L: CARTES"); // Message court sur les contrôles
 }
 
-// Système de sauvegarde
-const saveGame = {
-    // Sauvegarder la partie
-    save: function(slot = 1) {
-        const saveData = {
-            version: "1.0",
-            timestamp: Date.now(),
-            player: {
-                x: player.x,
-                y: player.y,
-                renderX: player.renderX,
-                renderY: player.renderY,
-                level: player.level,
-                hp: player.hp,
-                maxHp: player.maxHp,
-                mp: player.mp,
-                maxMp: player.maxMp,
-                attack: player.attack,
-                defense: player.defense,
-                exp: player.exp,
-                expToNext: player.expToNext,
-                gold: player.gold,
-                equipped: {
-                    weapon: player.equipped.weapon ? player.equipped.weapon.key : null,
-                    armor: player.equipped.armor ? player.equipped.armor.key : null
-                },
-                // AJOUT: Sauvegarder les stats de base (sans équipement)
-                baseAttack: player.equipped.weapon ? player.attack - player.equipped.weapon.attack : player.attack,
-                baseDefense: player.equipped.armor ? player.defense - player.equipped.armor.defense : player.defense
+// ============================================
+// SAVE.JS - Système de sauvegarde
+// ============================================
+
+// Constantes
+const SAVE_PREFIX = 'gameboy_save_';
+const SAVE_VERSION = '1.0';
+
+// ============================================
+// FONCTIONS PRINCIPALES
+// ============================================
+
+/**
+ * Sauvegarde la partie dans un slot
+ * @param {number} slot - Numéro du slot (0 = autosave, 1-3 = manuel)
+ * @returns {boolean} - true si succès, false sinon
+ */
+function saveGame(slot = 1) {
+    const saveData = {
+        version: SAVE_VERSION,
+        timestamp: Date.now(),
+        player: {
+            x: player.x,
+            y: player.y,
+            renderX: player.renderX,
+            renderY: player.renderY,
+            level: player.level,
+            hp: player.hp,
+            maxHp: player.maxHp,
+            mp: player.mp,
+            maxMp: player.maxMp,
+            attack: player.attack,
+            defense: player.defense,
+            exp: player.exp,
+            expToNext: player.expToNext,
+            gold: player.gold,
+            equipped: {
+                weapon: player.equipped.weapon ? player.equipped.weapon.key : null,
+                armor: player.equipped.armor ? player.equipped.armor.key : null
             },
-            inventory: inventory.items.map(item => item.key),
-            currentMapId: currentMapId,
-            chests: chests,
-            puzzles: puzzles, // Sauvegarder l'état des énigmes
-            customMaps: customMaps, // Sauvegarder les cartes custom
-            defeatedEnemies: {} // Pour stocker les ennemis vaincus par carte
-        };
-        
-        // Sauvegarder les ennemis vaincus
-        Object.keys(maps).forEach(mapId => {
-            const map = maps[mapId];
-            if (map.npcs) {
-                saveData.defeatedEnemies[mapId] = [];
-                map.npcs.forEach((npcData, index) => {
-                    if (npcData.enemy) {
-                        // Vérifier si cet ennemi existe encore
-                        const exists = mapId == currentMapId ? 
-                            npcs.some(npc => npc.id === index) : 
-                            true; // On assume qu'il existe sur les autres cartes
-                        if (!exists) {
-                            saveData.defeatedEnemies[mapId].push(index);
-                        }
-                    }
-                });
-            }
-        });
-        
-        try {
-            localStorage.setItem(`gameboy_save_${slot}`, JSON.stringify(saveData));
-            return true;
-        } catch (e) {
-            console.error("Erreur de sauvegarde:", e);
-            return false;
-        }
-    },
+            // Stats de base (sans équipement)
+            baseAttack: player.equipped.weapon ? player.attack - player.equipped.weapon.attack : player.attack,
+            baseDefense: player.equipped.armor ? player.defense - player.equipped.armor.defense : player.defense
+        },
+        inventory: inventory.items.map(item => item.key),
+        currentMapId: currentMapId,
+        chests: chests,
+        puzzles: puzzles,
+        customMaps: customMaps,
+        defeatedEnemies: {}
+    };
     
-    // Charger la partie
-    load: function(slot = 1) {
-        try {
-            const saveDataStr = localStorage.getItem(`gameboy_save_${slot}`);
-            if (!saveDataStr) return false;
-            
-            const saveData = JSON.parse(saveDataStr);
-            
-            // Restaurer les données du joueur
-            player.x = saveData.player.x;
-            player.y = saveData.player.y;
-            // Synchroniser les positions de rendu
-            player.renderX = saveData.player.renderX || player.x;
-            player.renderY = saveData.player.renderY || player.y;
-            player.targetX = player.x;
-            player.targetY = player.y;
-            player.moving = false;
-            player.moveProgress = 0;
-            player.animFrame = 0;
-            player.animTimer = 0;
-            
-            player.level = saveData.player.level;
-            player.hp = saveData.player.hp;
-            player.maxHp = saveData.player.maxHp;
-            player.mp = saveData.player.mp || 10;
-            player.maxMp = saveData.player.maxMp || 10;
-            player.exp = saveData.player.exp;
-            player.expToNext = saveData.player.expToNext;
-            player.gold = saveData.player.gold || 50;
-            
-            // CORRECTIF: D'abord restaurer les stats de base
-            player.attack = saveData.player.baseAttack !== undefined ? 
-                saveData.player.baseAttack : saveData.player.attack;
-            player.defense = saveData.player.baseDefense !== undefined ? 
-                saveData.player.baseDefense : saveData.player.defense;
-            
-            // Réinitialiser l'équipement
-            player.equipped.weapon = null;
-            player.equipped.armor = null;
-            
-            // CORRECTIF: Restaurer et appliquer l'équipement correctement
-            if (saveData.player.equipped.weapon) {
-                const weaponKey = saveData.player.equipped.weapon;
-                const weapon = { ...itemTypes[weaponKey], key: weaponKey };
-                player.equipped.weapon = weapon;
-                // Appliquer le bonus d'attaque
-                player.attack += weapon.attack;
-            }
-            
-            if (saveData.player.equipped.armor) {
-                const armorKey = saveData.player.equipped.armor;
-                const armor = { ...itemTypes[armorKey], key: armorKey };
-                player.equipped.armor = armor;
-                // Appliquer le bonus de défense
-                player.defense += armor.defense;
-            }
-            
-            // Restaurer l'inventaire
-            inventory.items = [];
-            saveData.inventory.forEach(itemKey => {
-                addToInventory(itemKey);
-            });
-            
-            // Restaurer l'état des coffres
-            Object.keys(saveData.chests).forEach(key => {
-                chests[key] = saveData.chests[key];
-            });
-            
-            // Mettre à jour les tuiles des coffres ouverts
-            Object.keys(chests).forEach(chestKey => {
-                if (chests[chestKey].opened) {
-                    const [mapId, x, y] = chestKey.split('-').map(Number);
-                    if (maps[mapId] && maps[mapId].tiles[y] && maps[mapId].tiles[y][x] === 5) {
-                        maps[mapId].tiles[y][x] = 6;
+    // Sauvegarder les ennemis vaincus
+    Object.keys(maps).forEach(mapId => {
+        const map = maps[mapId];
+        if (map.npcs) {
+            saveData.defeatedEnemies[mapId] = [];
+            map.npcs.forEach((npcData, index) => {
+                if (npcData.enemy) {
+                    const exists = mapId == currentMapId ? 
+                        npcs.some(npc => npc.id === index) : 
+                        true;
+                    if (!exists) {
+                        saveData.defeatedEnemies[mapId].push(index);
                     }
                 }
             });
-            
-            // Restaurer l'état des puzzles
-            if (saveData.puzzles) {
-                Object.assign(puzzles, saveData.puzzles);
-            }
-            
-            // Restaurer les cartes custom si elles existent
-            if (saveData.customMaps) {
-                customMaps = saveData.customMaps;
-                localStorage.setItem('customMaps', JSON.stringify(customMaps));
-                // Refusionner les cartes
-                maps = { ...defaultMaps, ...customMaps };
-            }
-            
-            // Changer de carte et charger les PNJ
-            currentMapId = saveData.currentMapId;
-            loadNPCs();
-            
-            // Retirer les ennemis vaincus
-            if (saveData.defeatedEnemies && saveData.defeatedEnemies[currentMapId]) {
-                const defeatedIndices = saveData.defeatedEnemies[currentMapId];
-                // Retirer en ordre inverse pour ne pas décaler les indices
-                defeatedIndices.sort((a, b) => b - a).forEach(index => {
-                    const npcIndex = npcs.findIndex(npc => npc.id === index);
-                    if (npcIndex > -1) {
-                        npcs.splice(npcIndex, 1);
-                    }
-                });
-            }
-            
-            updateCamera();
-            return true;
-            
-        } catch (e) {
-            console.error("Erreur de chargement:", e);
-            return false;
         }
-    },
+    });
     
-    // Vérifier si une sauvegarde existe
-    exists: function(slot = 1) {
-        return localStorage.getItem(`gameboy_save_${slot}`) !== null;
-    },
-    
-    // Obtenir les infos d'une sauvegarde
-    getInfo: function(slot = 1) {
-        try {
-            const saveDataStr = localStorage.getItem(`gameboy_save_${slot}`);
-            if (!saveDataStr) return null;
-            
-            const saveData = JSON.parse(saveDataStr);
-            const date = new Date(saveData.timestamp);
-            
-            return {
-                level: saveData.player.level,
-                map: maps[saveData.currentMapId].name,
-                date: date.toLocaleString('fr-FR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }) // Format court: JJ/MM HH:MM
-            };
-        } catch (e) {
-            return null;
-        }
-    },
-    
-    // Supprimer une sauvegarde
-    delete: function(slot = 1) {
-        localStorage.removeItem(`gameboy_save_${slot}`);
+    try {
+        localStorage.setItem(`${SAVE_PREFIX}${slot}`, JSON.stringify(saveData));
+        return true;
+    } catch (e) {
+        console.error("Erreur de sauvegarde:", e);
+        return false;
     }
-};
+}
+
+/**
+ * Charge la partie depuis un slot
+ * @param {number} slot - Numéro du slot
+ * @returns {boolean} - true si succès, false sinon
+ */
+function loadGame(slot = 1) {
+    try {
+        const saveDataStr = localStorage.getItem(`${SAVE_PREFIX}${slot}`);
+        if (!saveDataStr) return false;
+        
+        const saveData = JSON.parse(saveDataStr);
+        
+        // Restaurer le joueur
+        player.x = saveData.player.x;
+        player.y = saveData.player.y;
+        player.renderX = saveData.player.renderX || player.x;
+        player.renderY = saveData.player.renderY || player.y;
+        player.targetX = player.x;
+        player.targetY = player.y;
+        player.moving = false;
+        player.moveProgress = 0;
+        player.animFrame = 0;
+        player.animTimer = 0;
+        
+        player.level = saveData.player.level;
+        player.hp = saveData.player.hp;
+        player.maxHp = saveData.player.maxHp;
+        player.mp = saveData.player.mp || 10;
+        player.maxMp = saveData.player.maxMp || 10;
+        player.exp = saveData.player.exp;
+        player.expToNext = saveData.player.expToNext;
+        player.gold = saveData.player.gold || 50;
+        
+        // Restaurer les stats de base
+        player.attack = saveData.player.baseAttack !== undefined ? 
+            saveData.player.baseAttack : saveData.player.attack;
+        player.defense = saveData.player.baseDefense !== undefined ? 
+            saveData.player.baseDefense : saveData.player.defense;
+        
+        // Restaurer l'inventaire
+        inventory.items = [];
+        saveData.inventory.forEach(itemKey => {
+            if (itemTypes[itemKey]) {
+                const item = { ...itemTypes[itemKey], key: itemKey };
+                inventory.items.push(item);
+            }
+        });
+        
+        // Restaurer l'équipement
+        player.equipped.weapon = null;
+        player.equipped.armor = null;
+        
+        if (saveData.player.equipped.weapon) {
+            const weaponItem = inventory.items.find(item => item.key === saveData.player.equipped.weapon);
+            if (weaponItem) {
+                player.equipped.weapon = weaponItem;
+                player.attack += weaponItem.attack;
+            }
+        }
+        
+        if (saveData.player.equipped.armor) {
+            const armorItem = inventory.items.find(item => item.key === saveData.player.equipped.armor);
+            if (armorItem) {
+                player.equipped.armor = armorItem;
+                player.defense += armorItem.defense;
+            }
+        }
+        
+        // Restaurer l'état du monde
+        currentMapId = saveData.currentMapId;
+        chests = saveData.chests || [];
+        puzzles = saveData.puzzles || { states: {}, sequences: {} };
+        
+        if (saveData.customMaps) {
+            customMaps = saveData.customMaps;
+        }
+        
+        // Restaurer les ennemis vaincus
+        if (saveData.defeatedEnemies) {
+            Object.keys(saveData.defeatedEnemies).forEach(mapId => {
+                const map = maps[mapId];
+                if (map && map.npcs) {
+                    const defeatedIndices = saveData.defeatedEnemies[mapId];
+                    defeatedIndices.forEach(index => {
+                        if (map.npcs[index]) {
+                            delete map.npcs[index];
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Recharger la carte et les NPCs
+        loadMapById(currentMapId);
+        loadNPCs();
+        
+        return true;
+    } catch (e) {
+        console.error("Erreur de chargement:", e);
+        return false;
+    }
+}
+
+/**
+ * Vérifie si une sauvegarde existe
+ * @param {number} slot - Numéro du slot
+ * @returns {boolean} - true si existe, false sinon
+ */
+function saveExists(slot = 1) {
+    return localStorage.getItem(`${SAVE_PREFIX}${slot}`) !== null;
+}
+
+/**
+ * Récupère les informations d'une sauvegarde
+ * @param {number} slot - Numéro du slot
+ * @returns {object|null} - Objet avec {level, map, date} ou null
+ */
+function getSaveInfo(slot = 1) {
+    try {
+        const saveDataStr = localStorage.getItem(`${SAVE_PREFIX}${slot}`);
+        if (!saveDataStr) return null;
+        
+        const saveData = JSON.parse(saveDataStr);
+        const date = new Date(saveData.timestamp);
+        
+        return {
+            level: saveData.player.level,
+            map: maps[saveData.currentMapId].name,
+            date: date.toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            })
+        };
+    } catch (e) {
+        return null;
+    }
+}
+
+/**
+ * Supprime une sauvegarde
+ * @param {number} slot - Numéro du slot
+ */
+function deleteSave(slot = 1) {
+    localStorage.removeItem(`${SAVE_PREFIX}${slot}`);
+}
+
+/**
+ * Sauvegarde automatique (utilise le slot 0)
+ * @returns {boolean} - true si succès
+ */
+function autoSave() {
+    return saveGame(0);
+}
 
 // Ajouter un objet à l'inventaire
 function addToInventory(itemKey) {

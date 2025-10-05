@@ -29,10 +29,10 @@ if (!START_WITH_MENU) {
     }
     
     // Vérifier si une sauvegarde automatique existe
-    if (saveGame.exists(0)) {
-        const info = saveGame.getInfo(0);
+    if (saveExists(0)) {
+        const info = getSaveInfo(0);
         if (info && confirm(`Sauvegarde automatique trouvée (${info.date}). Voulez-vous la charger ?`)) {
-            saveGame.load(0);
+            loadGame(0);
         }
     }
 }
@@ -41,7 +41,7 @@ if (!START_WITH_MENU) {
 // Sauvegarde automatique toutes les 5 minutes
 setInterval(() => {
     if (gameState === 'playing' && !battle.active && !dialogue.active && !menu.active && !inventoryUI.active && !saveMenu.active) {
-        saveGame.save(0); // Slot 0 pour la sauvegarde auto
+        saveGame(0); // Slot 0 pour la sauvegarde auto
     }
 }, 300000); // 5 minutes
 

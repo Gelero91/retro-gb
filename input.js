@@ -9,7 +9,7 @@ document.addEventListener('keydown', (e) => {
                 case 'a':
                 case 'A':
                     // Confirmer la suppression
-                    saveGame.delete(saveMenu.slots[saveMenu.deleteSlot]);
+                    deleteSave(saveMenu.slots[saveMenu.deleteSlot]);
                     saveMenu.confirmDelete = false;
                     break;
                 case 'b':
@@ -31,7 +31,7 @@ document.addEventListener('keydown', (e) => {
                 case 'A':
                     const slot = saveMenu.slots[saveMenu.selectedSlot];
                     if (saveMenu.mode === 'save') {
-                        if (saveGame.save(slot)) {
+                        if (saveGame(slot)) {
                             startDialogue(`Partie sauvegardée dans le slot ${slot} !`);
                             saveMenu.active = false;
                         } else {
@@ -39,8 +39,8 @@ document.addEventListener('keydown', (e) => {
                             saveMenu.active = false;
                         }
                     } else {
-                        if (saveGame.exists(slot)) {
-                            if (saveGame.load(slot)) {
+                        if (saveExists(slot)) {
+                            if (loadGame(slot)) {
                                 // IMPORTANT: Passer en mode jeu après le chargement
                                 gameState = 'playing';
                                 saveMenu.active = false;
@@ -58,7 +58,7 @@ document.addEventListener('keydown', (e) => {
                 case 'x':
                 case 'X':
                     // Supprimer une sauvegarde
-                    if (saveGame.exists(saveMenu.slots[saveMenu.selectedSlot])) {
+                    if (saveExists(saveMenu.slots[saveMenu.selectedSlot])) {
                         saveMenu.confirmDelete = true;
                         saveMenu.deleteSlot = saveMenu.selectedSlot;
                     }
