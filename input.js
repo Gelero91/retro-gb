@@ -1,21 +1,21 @@
+// input.js - FICHIER COMPLET
+
 // Gestion des inputs clavier
 document.addEventListener('keydown', (e) => {
     keys[e.key] = true;
     
-    // Gestion du menu de sauvegarde (DÉPLACÉ ICI - AVANT LA VÉRIFICATION DU GAMESTATE)
+    // Gestion du menu de sauvegarde (AVANT LA VÉRIFICATION DU GAMESTATE)
     if (saveMenu.active) {
         if (saveMenu.confirmDelete) {
             switch(e.key) {
                 case 'a':
                 case 'A':
-                    // Confirmer la suppression
                     deleteSave(saveMenu.slots[saveMenu.deleteSlot]);
                     saveMenu.confirmDelete = false;
                     break;
                 case 'b':
                 case 'B':
                 case 'Escape':
-                    // Annuler la suppression
                     saveMenu.confirmDelete = false;
                     break;
             }
@@ -41,7 +41,6 @@ document.addEventListener('keydown', (e) => {
                     } else {
                         if (saveExists(slot)) {
                             if (loadGame(slot)) {
-                                // IMPORTANT: Passer en mode jeu après le chargement
                                 gameState = 'playing';
                                 saveMenu.active = false;
                                 saveMenu.fromMainMenu = false;
@@ -57,7 +56,6 @@ document.addEventListener('keydown', (e) => {
                     break;
                 case 'x':
                 case 'X':
-                    // Supprimer une sauvegarde
                     if (saveExists(saveMenu.slots[saveMenu.selectedSlot])) {
                         saveMenu.confirmDelete = true;
                         saveMenu.deleteSlot = saveMenu.selectedSlot;
@@ -106,7 +104,7 @@ document.addEventListener('keydown', (e) => {
     // Le reste du code n'est actif que si on est en jeu
     if (gameState !== 'playing') return;
     
-    // Ouvrir le chargeur de cartes avec L (priorité haute)
+    // Ouvrir le chargeur de cartes avec L
     if (e.key === 'l' || e.key === 'L') {
         toggleMapLoader();
         return;
@@ -155,7 +153,7 @@ document.addEventListener('keydown', (e) => {
         return;
     }
     
-    // Gestion de l'inventaire
+    // Gestion de l'inventaire - MODIFIÉ pour le déséquipement
     if (inventoryUI.active) {
         switch(e.key) {
             case 'ArrowUp':
@@ -172,20 +170,14 @@ document.addEventListener('keydown', (e) => {
                 break;
             case 'a':
             case 'A':
-                const selectedIndex = inventoryUI.cursorY * inventoryUI.gridWidth + inventoryUI.cursorX;
-                const selectedItem = inventory.items[selectedIndex];
-                if (selectedItem) {
-                    if (useItem(selectedItem)) {
-                        // Si consommé, retirer de l'inventaire
-                        inventory.items.splice(selectedIndex, 1);
-                    }
-                    inventoryUI.active = false;
-                }
+                // Utiliser/Équiper/Déséquiper l'objet sélectionné
+                useInventoryItem();
                 break;
-            case 'm':
-            case 'M':
+            case 'b':
+            case 'B':
             case 'Escape':
                 inventoryUI.active = false;
+                menu.active = true;
                 break;
         }
         return;
@@ -197,7 +189,6 @@ document.addEventListener('keydown', (e) => {
             battle.enemy.hp > 0 && player.hp > 0) {
             
             if (battle.magicMenuActive) {
-                // Navigation dans le menu de magie
                 switch(e.key) {
                     case 'ArrowUp':
                         do {
@@ -213,7 +204,6 @@ document.addEventListener('keydown', (e) => {
                         } while (battle.selectedMagic < battle.magicOptions.length - 1 && 
                                 (player.mp < player.skills[battle.magicOptions[battle.selectedMagic]].mpCost ||
                                  player.skills[battle.magicOptions[battle.selectedMagic]].cooldown > 0));
-                        // Si aucune option valide vers le bas, rester sur la sélection actuelle
                         if (player.mp < player.skills[battle.magicOptions[battle.selectedMagic]].mpCost ||
                             player.skills[battle.magicOptions[battle.selectedMagic]].cooldown > 0) {
                             battle.selectedMagic = oldSelection;
@@ -230,7 +220,6 @@ document.addEventListener('keydown', (e) => {
                         break;
                 }
             } else {
-                // Menu principal de combat
                 switch(e.key) {
                     case 'ArrowUp':
                         battle.selectedAction = Math.max(0, battle.selectedAction - 1);
@@ -241,13 +230,12 @@ document.addEventListener('keydown', (e) => {
                     case 'a':
                     case 'A':
                         switch(battle.selectedAction) {
-                            case 0: // Attaquer
+                            case 0:
                                 playerAttack();
                                 break;
-                            case 1: // Magie
+                            case 1:
                                 battle.magicMenuActive = true;
                                 battle.selectedMagic = 0;
-                                // Trouver la première option de magie utilisable
                                 for (let i = 0; i < battle.magicOptions.length; i++) {
                                     const skill = player.skills[battle.magicOptions[i]];
                                     if (player.mp >= skill.mpCost && skill.cooldown === 0) {
@@ -256,7 +244,7 @@ document.addEventListener('keydown', (e) => {
                                     }
                                 }
                                 break;
-                            case 2: // Défendre
+                            case 2:
                                 battle.message = "Vous vous mettez en position défensive !";
                                 battle.messageTimer = 60;
                                 battle.playerTurn = false;
@@ -277,7 +265,7 @@ document.addEventListener('keydown', (e) => {
                                     }
                                 }, 1500);
                                 break;
-                            case 3: // Fuir
+                            case 3:
                                 if (Math.random() < 0.5) {
                                     battle.message = "Vous prenez la fuite !";
                                     battle.messageTimer = 60;
@@ -332,21 +320,17 @@ document.addEventListener('keydown', (e) => {
         if (e.key === 'a' || e.key === 'A') {
             const currentPageText = dialogue.pages[dialogue.currentPage];
             if (dialogue.charIndex >= currentPageText.length) {
-                // Le texte de la page est complet
                 if (dialogue.currentPage < dialogue.pages.length - 1) {
-                    // Passer à la page suivante
                     dialogue.currentPage++;
                     dialogue.charIndex = 0;
                 } else {
-                    // Fermer le dialogue
                     dialogue.active = false;
                 }
             } else {
-                // Afficher tout le texte de la page instantanément
                 dialogue.charIndex = currentPageText.length;
             }
         }
-        return; // Bloquer les mouvements pendant le dialogue
+        return;
     }
     
     // Ouvrir le menu avec M
@@ -361,7 +345,7 @@ document.addEventListener('keydown', (e) => {
         return;
     }
     
-    // Mouvements du joueur - NOUVELLE LOGIQUE
+    // Mouvements du joueur
     if (!player.moving) {
         let targetX = player.x;
         let targetY = player.y;
@@ -385,37 +369,30 @@ document.addEventListener('keydown', (e) => {
                 newFacing = 'right';
                 break;
             default:
-                return; // Pas une touche de mouvement
+                return;
         }
         
-        // Toujours mettre à jour la direction
         player.facing = newFacing;
         
-        // Vérifier les limites de la carte
         const currentMap = maps[currentMapId];
         if (targetX < 0 || targetX >= currentMap.tiles[0].length ||
             targetY < 0 || targetY >= currentMap.tiles.length) {
-            return; // Hors limites
+            return;
         }
         
-        // Vérifier si la tuile est marchable
         if (!isWalkable(currentMap.tiles[targetY][targetX])) {
-            return; // Obstacle
+            return;
         }
         
-        // Vérifier les collisions avec TOUS les PNJ (incluant réservations)
         const npcCollision = isTileOccupiedByNPC(targetX, targetY);
         if (npcCollision) {
-            // Vérifier si c'est un ennemi sur la case cible
             const enemyCollision = npcs.find(npc => npc.x === targetX && npc.y === targetY && npc.enemy);
             if (enemyCollision && !battle.active && !enemyCollision.moving) {
-                // Déclencher le combat sans bouger
                 startBattle(enemyCollision.type, enemyCollision);
             }
-            return; // Bloqué par un PNJ
+            return;
         }
         
-        // Tout est OK, démarrer le mouvement
         player.targetX = targetX;
         player.targetY = targetY;
         player.moving = true;

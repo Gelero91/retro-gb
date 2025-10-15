@@ -25,7 +25,7 @@ const COLORS = {
 };
 
 // Configuration
-const START_WITH_MENU = true; // true = menu principal, false = démarrage direct
+const START_WITH_MENU = false; // true = menu principal, false = démarrage direct
 const DEBUG_MODE = false; // Activer pour voir les indicateurs de mouvement des PNJ
 
 // ============================================

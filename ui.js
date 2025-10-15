@@ -1,3 +1,5 @@
+// ui.js - FICHIER COMPLET AVEC DÉSÉQUIPEMENT
+
 // Fonctions utilitaires pour dessiner les sprites UI
 function drawUIFrame(ctx, x, y, width, height, scale) {
     // Les dimensions doivent être en multiples de TILE_SIZE
@@ -66,38 +68,31 @@ function splitTextIntoPages(text) {
     let currentLine = [];
     let currentLineLength = 0;
     
-    const maxCharsPerLine = 15; // CORRIGÉ: Réduit de 26 à 15 pour respecter les 144 pixels
-    const maxLinesPerPage = 4; // AUGMENTÉ: De 3 à 4 pour compenser
+    const maxCharsPerLine = 15;
+    const maxLinesPerPage = 4;
     
     for (let i = 0; i < words.length; i++) {
         const word = words[i];
         const wordLength = word.length;
         
-        // Vérifier si le mot rentre sur la ligne courante
         if (currentLineLength + (currentLine.length > 0 ? 1 : 0) + wordLength <= maxCharsPerLine) {
-            // Le mot rentre sur la ligne
             currentLine.push(word);
             currentLineLength += (currentLine.length > 1 ? 1 : 0) + wordLength;
         } else {
-            // Le mot ne rentre pas, il faut passer à la ligne suivante
             if (currentPage.length >= maxLinesPerPage) {
-                // La page est pleine, créer une nouvelle page
                 pages.push(currentPage.join(' '));
                 currentPage = [];
             }
             
-            // Ajouter la ligne courante à la page
             if (currentLine.length > 0) {
                 currentPage.push(currentLine.join(' '));
             }
             
-            // Commencer une nouvelle ligne avec ce mot
             currentLine = [word];
             currentLineLength = wordLength;
         }
     }
     
-    // Ajouter la dernière ligne si elle existe
     if (currentLine.length > 0) {
         if (currentPage.length >= maxLinesPerPage) {
             pages.push(currentPage.join(' '));
@@ -107,7 +102,6 @@ function splitTextIntoPages(text) {
         }
     }
     
-    // Ajouter la dernière page si elle existe
     if (currentPage.length > 0) {
         pages.push(currentPage.join(' '));
     }
@@ -131,20 +125,16 @@ function updateDialogue() {
 function drawDialogue() {
     if (!dialogue.active || dialogue.currentPage >= dialogue.pages.length) return;
     
-    // Boîte de dialogue en bas de l'écran
-    const boxHeight = 64; // AUGMENTÉ: De 48 à 64 pour 4 lignes
+    const boxHeight = 64;
     const boxY = SCREEN_HEIGHT - boxHeight - 8;
     const boxX = 8;
     const boxWidth = SCREEN_WIDTH - 16;
     
-    // Calculer les dimensions en tuiles
     const tilesWidth = Math.ceil(boxWidth / TILE_SIZE);
     const tilesHeight = Math.ceil(boxHeight / TILE_SIZE);
     
-    // Dessiner le cadre avec les nouveaux sprites
     drawUIFrame(ctx, boxX, boxY, tilesWidth * TILE_SIZE, tilesHeight * TILE_SIZE, SCALE);
     
-    // Affichage progressif du texte de la page courante
     const currentPageText = dialogue.pages[dialogue.currentPage];
     const displayText = currentPageText.substring(0, dialogue.charIndex);
     const lines = wrapPixelText(displayText, boxWidth - 16);
@@ -153,17 +143,14 @@ function drawDialogue() {
         drawPixelText(ctx, line, boxX + 8, boxY + 8 + index * 10, SCALE, 3);
     });
     
-    // Indicateur de pages
     if (dialogue.pages.length > 1) {
         const pageIndicator = `${dialogue.currentPage + 1}/${dialogue.pages.length}`;
         const indicatorWidth = measurePixelText(pageIndicator);
         drawPixelText(ctx, pageIndicator, boxX + boxWidth - indicatorWidth - 8, boxY + boxHeight - 10, SCALE, 2);
     }
     
-    // Indicateur approprié
     if (dialogue.charIndex >= currentPageText.length && Math.floor(Date.now() / 500) % 2) {
         if (dialogue.currentPage < dialogue.pages.length - 1) {
-            // Flèche vers le bas pour indiquer qu'il y a une suite
             ctx.fillStyle = COLORS[3];
             ctx.beginPath();
             ctx.moveTo((boxX + boxWidth/2 - 2) * SCALE, (boxY + boxHeight - 12) * SCALE);
@@ -172,7 +159,6 @@ function drawDialogue() {
             ctx.closePath();
             ctx.fill();
         } else {
-            // Carré pour indiquer la fin du dialogue
             ctx.fillStyle = COLORS[3];
             ctx.fillRect((boxX + boxWidth/2 - 2) * SCALE, (boxY + boxHeight - 12) * SCALE, 4 * SCALE, 4 * SCALE);
         }
@@ -184,7 +170,7 @@ function wrapText(text, maxWidth) {
     const lines = [];
     let currentLine = '';
     
-    const charWidth = 5; // Largeur approximative d'un caractère
+    const charWidth = 5;
     
     words.forEach(word => {
         const testLine = currentLine + (currentLine ? ' ' : '') + word;
@@ -204,7 +190,7 @@ function wrapText(text, maxWidth) {
         lines.push(currentLine);
     }
     
-    return lines.slice(0, 4); // Maximum 4 lignes maintenant
+    return lines.slice(0, 4);
 }
 
 // Système de menu
@@ -218,35 +204,28 @@ function toggleMenu() {
 function drawMenu() {
     if (!menu.active) return;
     
-    // Dimensions du menu
-    const menuWidth = 96; // 6 tuiles de largeur
-    const menuHeight = 80; // AUGMENTÉ: De 64 à 80 pixels (5 tuiles au lieu de 4)
+    const menuWidth = 96;
+    const menuHeight = 80;
     const menuX = Math.floor((SCREEN_WIDTH - menuWidth) / 2);
     const menuY = Math.floor((SCREEN_HEIGHT - menuHeight) / 2);
     
-    // Dessiner le cadre avec les nouveaux sprites
     drawUIFrame(ctx, menuX, menuY, menuWidth, menuHeight, SCALE);
     
-    // Titre du menu
     const menuTitleWidth = measurePixelText("MENU");
     drawPixelText(ctx, "MENU", menuX + (menuWidth - menuTitleWidth) / 2, menuY + 8, SCALE, 3);
     
-    // Options du menu avec abréviations
-    const menuLabels = ["INV.", "STATUT", "SAUVER", "QUITTER"]; // ABRÉGÉ
+    const menuLabels = ["INV.", "STATUT", "SAUVER", "QUITTER"];
     
-    // Décalage des options vers le bas d'un tile (16 pixels)
-    const optionsStartY = menuY + 34; // Augmenté de 18 à 34 (+16 pixels)
+    const optionsStartY = menuY + 34;
     
     menu.options.forEach((option, index) => {
-        const optionY = optionsStartY + (index * 11); // Espacement légèrement augmenté
+        const optionY = optionsStartY + (index * 11);
         
-        // Surbrillance de l'option sélectionnée
         if (index === menu.selectedOption) {
             ctx.fillStyle = COLORS[2];
             ctx.fillRect((menuX + 8) * SCALE, (optionY - 5) * SCALE, (menuWidth - 16) * SCALE, 10 * SCALE);
         }
         
-        // Texte de l'option et curseur
         const textColor = index === menu.selectedOption ? 0 : 3;
         drawPixelText(ctx, menuLabels[index], menuX + 24, optionY - 4, SCALE, textColor);
         
@@ -263,7 +242,6 @@ function handleMenuAction(action) {
             showInventory();
             break;
         case "status":
-            // Afficher les stats en plusieurs dialogues courts
             const weapon = player.equipped.weapon;
             const armor = player.equipped.armor;
             
@@ -282,8 +260,7 @@ function handleMenuAction(action) {
             showSaveMenu('save');
             break;
         case "quit":
-            // Retour au menu principal
-            if (confirm("Menu principal ?")) { // Message court
+            if (confirm("Menu principal ?")) {
                 gameState = 'mainMenu';
                 mainMenu.selectedOption = 0;
                 mainMenu.showingCredits = false;
@@ -300,78 +277,141 @@ function showInventory() {
     inventoryUI.cursorY = 0;
 }
 
+// FONCTION MODIFIÉE - Utilisation d'objets avec déséquipement (sans dialogues)
+function useInventoryItem() {
+    const selectedIndex = inventoryUI.cursorY * inventoryUI.gridWidth + inventoryUI.cursorX;
+    const item = inventory.items[selectedIndex];
+    
+    if (!item) return;
+    
+    // Consommable
+    if (item.type === "consumable") {
+        if (item.effect === "heal") {
+            if (player.hp < player.maxHp) {
+                player.hp = Math.min(player.maxHp, player.hp + item.power);
+                removeFromInventory(item);
+                inventoryUI.active = false;
+            }
+        } else if (item.effect === "mana") {
+            if (player.mp < player.maxMp) {
+                player.mp = Math.min(player.maxMp, player.mp + item.power);
+                removeFromInventory(item);
+                inventoryUI.active = false;
+            }
+        }
+    }
+    // Arme - DÉSÉQUIPEMENT AJOUTÉ (sans dialogue)
+    else if (item.type === "weapon") {
+        // Si déjà équipé, déséquiper
+        if (player.equipped.weapon === item) {
+            player.attack -= item.attack;
+            player.equipped.weapon = null;
+        }
+        // Sinon, équiper (en remplaçant l'ancien si nécessaire)
+        else {
+            if (player.equipped.weapon) {
+                player.attack -= player.equipped.weapon.attack;
+            }
+            player.equipped.weapon = item;
+            player.attack += item.attack;
+        }
+    }
+    // Armure - DÉSÉQUIPEMENT AJOUTÉ (sans dialogue)
+    else if (item.type === "armor") {
+        // Si déjà équipé, déséquiper
+        if (player.equipped.armor === item) {
+            player.defense -= item.defense;
+            player.equipped.armor = null;
+        }
+        // Sinon, équiper (en remplaçant l'ancien si nécessaire)
+        else {
+            if (player.equipped.armor) {
+                player.defense -= player.equipped.armor.defense;
+            }
+            player.equipped.armor = item;
+            player.defense += item.defense;
+        }
+    }
+    // Objet clé - pas d'action pour l'instant
+}
+
+// FONCTION MODIFIÉE - Affichage inventaire avec indicateurs équipement
 function drawInventory() {
     if (!inventoryUI.active) return;
     
-    // Fond de l'inventaire
-    const invWidth = 128; // RÉDUIT: De 144 à 128 (8 tuiles)
-    const invHeight = 112; // RÉDUIT: De 128 à 112 (7 tuiles)
+    const invWidth = 128;
+    const invHeight = 112;
     const invX = Math.floor((SCREEN_WIDTH - invWidth) / 2);
     const invY = Math.floor((SCREEN_HEIGHT - invHeight) / 2);
     
-    // Dessiner le cadre avec les nouveaux sprites
     drawUIFrame(ctx, invX, invY, invWidth, invHeight, SCALE);
     
-    // Titre
-    const invTitleWidth = measurePixelText("INV."); // ABRÉGÉ
+    const invTitleWidth = measurePixelText("INV.");
     drawPixelText(ctx, "INV.", invX + (invWidth - invTitleWidth) / 2, invY + 8, SCALE, 3);
     
-    // Grille d'objets
-    const slotSize = 20; // RÉDUIT de 24 à 20
+    const slotSize = 20;
     const gridX = invX + 14;
     const gridY = invY + 20;
     
     for (let y = 0; y < inventoryUI.gridHeight; y++) {
         for (let x = 0; x < inventoryUI.gridWidth; x++) {
-            const slotX = gridX + x * (slotSize + 2); // Espacement réduit
+            const slotX = gridX + x * (slotSize + 2);
             const slotY = gridY + y * (slotSize + 2);
             const index = y * inventoryUI.gridWidth + x;
             
-            // Bordure de la case
             ctx.strokeStyle = COLORS[2];
             ctx.lineWidth = SCALE;
             ctx.strokeRect(slotX * SCALE, slotY * SCALE, slotSize * SCALE, slotSize * SCALE);
             
-            // Curseur avec le nouveau sprite
             if (x === inventoryUI.cursorX && y === inventoryUI.cursorY) {
-                // Dessiner le sprite curseur centré sur la case
                 drawUISprite(ctx, UI_FRAME_SPRITES.cursor, slotX + 2, slotY + 2, SCALE);
             }
             
-            // Objet
             if (inventory.items[index]) {
                 const item = inventory.items[index];
                 
-                // Icône simple selon le type
                 let icon = "?";
                 if (item.type === "consumable") icon = "♥";
                 else if (item.type === "weapon") icon = "†";
                 else if (item.type === "armor") icon = "◆";
                 else if (item.type === "key") icon = "§";
                 
+                // AMÉLIORATION: Fond vert clair pour items équipés
+                const isEquipped = (item === player.equipped.weapon || item === player.equipped.armor);
+                if (isEquipped) {
+                    ctx.fillStyle = COLORS[0];
+                    ctx.fillRect((slotX + 1) * SCALE, (slotY + 1) * SCALE, (slotSize - 2) * SCALE, (slotSize - 2) * SCALE);
+                }
+                
                 drawPixelText(ctx, icon, slotX + slotSize/2 - 4, slotY + slotSize/2 - 4, SCALE, 3);
                 
-                // Indicateur d'équipement (E)
-                if ((item === player.equipped.weapon || item === player.equipped.armor)) {
-                    drawPixelText(ctx, "E", slotX + slotSize - 8, slotY + 2, SCALE, 2);
+                // Indicateur "E" pour équipé
+                if (isEquipped) {
+                    drawPixelText(ctx, "E", slotX + slotSize - 8, slotY + 2, SCALE, 3);
                 }
             }
         }
     }
     
-    // Description courte de l'objet sélectionné
     const selectedIndex = inventoryUI.cursorY * inventoryUI.gridWidth + inventoryUI.cursorX;
     const selectedItem = inventory.items[selectedIndex];
     
     if (selectedItem) {
-        // Nom abrégé
         const shortName = selectedItem.name.substring(0, 12);
         drawPixelText(ctx, shortName, invX + 8, invY + invHeight - 25, SCALE, 3);
-        // Description très courte
-        const shortDesc = selectedItem.description.substring(0, 14);
+        
+        // AMÉLIORATION: Afficher [EQUIPE] ou instruction si l'item est équipé
+        const isEquipped = (selectedItem === player.equipped.weapon || selectedItem === player.equipped.armor);
+        let shortDesc = selectedItem.description.substring(0, 14);
+        
+        if (isEquipped) {
+            shortDesc = "A:RETIRER";
+        } else if (selectedItem.type === "weapon" || selectedItem.type === "armor") {
+            shortDesc = "A:EQUIPER";
+        }
+        
         drawPixelText(ctx, shortDesc, invX + 8, invY + invHeight - 15, SCALE, 2);
-    }
-}
+    }}
 
 // Menu de sauvegarde
 function showSaveMenu(mode = 'save') {
@@ -385,27 +425,21 @@ function showSaveMenu(mode = 'save') {
 function drawSaveMenu() {
     if (!saveMenu.active) return;
     
-    // Fond sombre
     ctx.fillStyle = 'rgba(15, 56, 15, 0.9)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Boîte principale
-    const boxWidth = 128; // RÉDUIT: De 144 à 128
-    const boxHeight = 96; // RÉDUIT: De 128 à 96
+    const boxWidth = 128;
+    const boxHeight = 96;
     const boxX = Math.floor((SCREEN_WIDTH - boxWidth) / 2);
     const boxY = Math.floor((SCREEN_HEIGHT - boxHeight) / 2);
     
-    // Dessiner le cadre avec les nouveaux sprites
     drawUIFrame(ctx, boxX, boxY, boxWidth, boxHeight, SCALE);
     
-    // Titre
-    const saveTitle = saveMenu.mode === 'save' ? "SAUVER" : "CHARGER"; // ABRÉGÉ
+    const saveTitle = saveMenu.mode === 'save' ? "SAUVER" : "CHARGER";
     const saveTitleWidth = measurePixelText(saveTitle);
     drawPixelText(ctx, saveTitle, boxX + (boxWidth - saveTitleWidth) / 2, boxY + 6, SCALE, 3);
     
-    // Confirmation de suppression
     if (saveMenu.confirmDelete) {
-        // Cadre de confirmation
         const confirmWidth = 96;
         const confirmHeight = 48;
         const confirmX = Math.floor((SCREEN_WIDTH - confirmWidth) / 2);
@@ -418,97 +452,74 @@ function drawSaveMenu() {
         return;
     }
     
-    // Slots de sauvegarde
     saveMenu.slots.forEach((slot, index) => {
-        const slotY = boxY + 20 + index * 20; // Espacement réduit de 25 à 20
-        const info = getSaveInfo(slot);;
+        const slotY = boxY + 20 + index * 20;
+        const info = getSaveInfo(slot);
         
-        // Surbrillance
         if (index === saveMenu.selectedSlot) {
             ctx.fillStyle = COLORS[2];
             ctx.fillRect((boxX + 5) * SCALE, (slotY - 3) * SCALE, (boxWidth - 9) * SCALE, 19 * SCALE);
         }
         
-        // Numéro du slot et infos
         const textColor = index === saveMenu.selectedSlot ? 0 : 3;
-        drawPixelText(ctx, `${slot}:`, boxX + 8, slotY - 2, SCALE, textColor);
         
         if (info) {
-            // Format court: NV.X + nom carte abrégé
-            const mapName = info.map.substring(0, 8);
-            drawPixelText(ctx, `NV.${info.level} ${mapName}`, boxX + 24, slotY - 2, SCALE, textColor);
-            // Date format court: JJ/MM HH:MM
-            const shortDate = info.date.substring(0, 11); // "25/12, 14:30" max
-            drawPixelText(ctx, shortDate, boxX + 8, slotY + 8, SCALE, textColor);
+            drawPixelText(ctx, `SLOT ${slot}`, boxX + 8, slotY + 2, SCALE, textColor);
+            drawPixelText(ctx, `NV${info.level}`, boxX + 50, slotY + 2, SCALE, textColor);
+            const shortDate = info.date.substring(0, 11);
+            drawPixelText(ctx, shortDate, boxX + 8, slotY + 11, SCALE, textColor);
         } else {
-            // Slot vide
-            drawPixelText(ctx, "- VIDE -", boxX + 24, slotY - 2, SCALE, 1);
+            drawPixelText(ctx, `SLOT ${slot}`, boxX + 8, slotY + 2, SCALE, textColor);
+            drawPixelText(ctx, "[VIDE]", boxX + 8, slotY + 11, SCALE, 1);
         }
     });
     
-    // Instructions courtes
-    drawPixelText(ctx, "A:OK   B:RET", boxX + 8, boxY + boxHeight - 16, SCALE, 2);
+    const instructions = saveMenu.mode === 'save' ? "A:SAUVER X:EFFACER" : "A:CHARGER";
+    drawPixelText(ctx, instructions, boxX + 8, boxY + boxHeight - 8, SCALE, 2);
 }
 
-// Système de shop
-function openShop() {
+// Shop
+function openShop(shopInventory) {
     shop.active = true;
     shop.mode = 'buy';
+    shop.shopInventory = shopInventory;
     shop.selectedItem = 0;
-    
-    // Filtrer les objets vendables du joueur
     shop.playerItems = inventory.items.filter(item => item.sellPrice > 0);
 }
 
 function drawShop() {
     if (!shop.active) return;
     
-    // Fond sombre
     ctx.fillStyle = 'rgba(15, 56, 15, 0.9)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Boîte principale
-    const boxWidth = 128; // RÉDUIT: De 144 à 128
-    const boxHeight = 112; // RÉDUIT: De 128 à 112
+    const boxWidth = 128;
+    const boxHeight = 96;
     const boxX = Math.floor((SCREEN_WIDTH - boxWidth) / 2);
     const boxY = Math.floor((SCREEN_HEIGHT - boxHeight) / 2);
     
-    // Dessiner le cadre avec les nouveaux sprites
     drawUIFrame(ctx, boxX, boxY, boxWidth, boxHeight, SCALE);
     
-    // Titre et or du joueur
-    const shopTitleWidth = measurePixelText("SHOP");
-    drawPixelText(ctx, "SHOP", boxX + (boxWidth - shopTitleWidth) / 2, boxY + 6, SCALE, 3);
+    const title = shop.mode === 'buy' ? "ACHETER" : "VENDRE";
+    const titleWidth = measurePixelText(title);
+    drawPixelText(ctx, title, boxX + (boxWidth - titleWidth) / 2, boxY + 6, SCALE, 3);
     
-    const goldText = `$${player.gold}`; // Utiliser $ au lieu de OR
-    drawPixelText(ctx, goldText, boxX + (boxWidth - measurePixelText(goldText)) / 2, boxY + 16, SCALE, 3);
+    drawPixelText(ctx, `OR: ${player.gold}`, boxX + boxWidth - 48, boxY + 6, SCALE, 3);
     
-    // Onglets Acheter/Vendre
-    const tabY = boxY + 26;
+    const tabY = boxY + 18;
     
-    // Mode simple: juste du texte souligné pour l'onglet actif
-    if (shop.mode === 'buy') {
-        drawPixelText(ctx, "ACHAT", boxX + 20, tabY, SCALE, 3);
-        // Ligne sous ACHAT
-        ctx.fillStyle = COLORS[3];
-        ctx.fillRect((boxX + 20) * SCALE, (tabY + 8) * SCALE, 45 * SCALE, SCALE);
-        drawPixelText(ctx, "VENTE", boxX + 72, tabY, SCALE, 1);
-    } else {
-        drawPixelText(ctx, "ACHAT", boxX + 20, tabY, SCALE, 1);
-        drawPixelText(ctx, "VENTE", boxX + 72, tabY, SCALE, 3);
-        // Ligne sous VENTE
-        ctx.fillStyle = COLORS[3];
-        ctx.fillRect((boxX + 72) * SCALE, (tabY + 8) * SCALE, 45 * SCALE, SCALE);
-    }
+    const buyTabColor = shop.mode === 'buy' ? 3 : 1;
+    const sellTabColor = shop.mode === 'sell' ? 3 : 1;
+    drawPixelText(ctx, "ACHAT", boxX + 16, tabY, SCALE, buyTabColor);
+    drawPixelText(ctx, "VENTE", boxX + boxWidth - 44, tabY, SCALE, sellTabColor);
     
-    // Liste des objets
-    const listY = boxY + 40;
+    const listY = boxY + 28;
     const items = shop.mode === 'buy' ? shop.shopInventory : shop.playerItems;
     
     if (items.length === 0) {
         drawPixelText(ctx, "RIEN", boxX + (boxWidth - measurePixelText("RIEN")) / 2, listY + 20, SCALE, 2);
     } else {
-        const maxVisible = 4; // Réduit de 5 à 4
+        const maxVisible = 4;
         const scrollOffset = Math.max(0, shop.selectedItem - maxVisible + 1);
         
         for (let i = 0; i < Math.min(maxVisible, items.length); i++) {
@@ -518,18 +529,15 @@ function drawShop() {
             const item = shop.mode === 'buy' ? itemTypes[items[index]] : items[index];
             const itemY = listY + i * 12;
             
-            // Surbrillance
             if (index === shop.selectedItem) {
                 ctx.fillStyle = COLORS[2];
                 ctx.fillRect((boxX + 8) * SCALE, (itemY - 4) * SCALE, (boxWidth - 16) * SCALE, 10 * SCALE);
             }
             
-            // Nom de l'objet (abrégé à 8 caractères)
             const textColor = index === shop.selectedItem ? 0 : 3;
             const shortName = item.name.toUpperCase().substring(0, 8);
             drawPixelText(ctx, shortName, boxX + 12, itemY - 2, SCALE, textColor);
             
-            // Prix avec $
             const price = shop.mode === 'buy' ? item.buyPrice : item.sellPrice;
             const canAfford = shop.mode === 'buy' ? player.gold >= price : true;
             const priceColor = canAfford ? (index === shop.selectedItem ? 0 : 3) : 1;
@@ -537,7 +545,6 @@ function drawShop() {
             drawPixelText(ctx, priceText, boxX + boxWidth - 12 - measurePixelText(priceText), itemY - 2, SCALE, priceColor);
         }
         
-        // Indicateur de scroll si nécessaire
         if (items.length > maxVisible) {
             const scrollPos = Math.floor((scrollOffset / (items.length - maxVisible)) * 3);
             for (let i = 0; i < 4; i++) {
@@ -548,7 +555,6 @@ function drawShop() {
         }
     }
     
-    // Instructions simplifiées
     drawPixelText(ctx, "A:OK B:SORTIR", boxX + 8, boxY + boxHeight - 2, SCALE, 2);
 }
 
@@ -558,7 +564,7 @@ function buyItem(itemKey) {
         if (inventory.items.length < inventory.maxSize) {
             player.gold -= item.buyPrice;
             addToInventory(itemKey);
-            startDialogue(`+${item.name}!`); // Message ultra court
+            startDialogue(`+${item.name}!`);
             shop.active = false;
         } else {
             startDialogue("INV. PLEIN!");
@@ -573,7 +579,7 @@ function sellItem(item) {
         player.gold += item.sellPrice;
         const index = inventory.items.indexOf(item);
         inventory.items.splice(index, 1);
-        startDialogue(`+$${item.sellPrice}!`); // Message court
+        startDialogue(`+$${item.sellPrice}!`);
         shop.playerItems = inventory.items.filter(item => item.sellPrice > 0);
         if (shop.playerItems.length === 0) {
             shop.mode = 'buy';
@@ -584,25 +590,20 @@ function sellItem(item) {
     }
 }
 
-// Dessiner le menu principal - VERSION MODIFIÉE AVEC CADRE AGRANDI
+// Menu principal
 function drawMainMenu() {
-    // Fond noir
     ctx.fillStyle = COLORS[3];
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Animation du titre
     mainMenu.animationFrame++;
     const titleY = 20 + Math.sin(mainMenu.animationFrame * 0.02) * 3;
     
-    // Titre du jeu
     drawPixelText(ctx, "GAME BOY", (SCREEN_WIDTH - measurePixelText("GAME BOY")) / 2, titleY, SCALE, 0);
     drawPixelText(ctx, "ENGINE", (SCREEN_WIDTH - measurePixelText("ENGINE")) / 2, titleY + 18, SCALE, 0);
     
-    // Sous-titre plus court
     drawPixelText(ctx, "~ PROTO RPG ~", (SCREEN_WIDTH - measurePixelText("~ PROTO RPG ~")) / 2, titleY + 30, SCALE, 1);
     
     if (mainMenu.showingCredits) {
-        // Afficher les crédits dans un cadre
         const creditsWidth = 112;
         const creditsHeight = 48;
         const creditsX = Math.floor((SCREEN_WIDTH - creditsWidth) / 2);
@@ -614,26 +615,21 @@ function drawMainMenu() {
         drawPixelText(ctx, "HTML5 GB", creditsX + (creditsWidth - measurePixelText("HTML5 GB")) / 2, creditsY + 22, SCALE, 3);
         drawPixelText(ctx, "B: RETOUR", creditsX + (creditsWidth - measurePixelText("B: RETOUR")) / 2, creditsY + 36, SCALE, 2);
     } else {
-        // Menu principal
-        const menuY = 65; // Légèrement remonté pour compenser la hauteur supplémentaire
+        const menuY = 65;
         const menuWidth = 112;
-        const menuHeight = 72; // AUGMENTÉ de 56 à 72 pixels (+1 tile de 16 pixels)
+        const menuHeight = 72;
         const menuX = Math.floor((SCREEN_WIDTH - menuWidth) / 2);
         
-        // Boîte du menu avec cadre
         drawUIFrame(ctx, menuX, menuY, menuWidth, menuHeight, SCALE);
         
-        // Options du menu (texte court)
         const shortLabels = ["NOUVEAU", "CHARGER", "OPTIONS", "CREDITS"];
         
-        // Calcul du centrage vertical des options dans le cadre agrandi
-        const optionsAreaHeight = mainMenu.options.length * 10 + (mainMenu.options.length - 1) * 2; // hauteur totale des options avec espacement
-        const optionsStartY = menuY + Math.floor((menuHeight - optionsAreaHeight) / 2); // centrage vertical
+        const optionsAreaHeight = mainMenu.options.length * 10 + (mainMenu.options.length - 1) * 2;
+        const optionsStartY = menuY + Math.floor((menuHeight - optionsAreaHeight) / 2);
         
         mainMenu.options.forEach((option, index) => {
-            const optionY = optionsStartY + (index * 12); // Espacement légèrement augmenté (10 -> 12)
+            const optionY = optionsStartY + (index * 12);
             
-            // Surbrillance
             if (index === mainMenu.selectedOption) {
                 ctx.fillStyle = COLORS[2];
                 ctx.fillRect((menuX + 8) * SCALE, (optionY - 5) * SCALE, (menuWidth - 16) * SCALE, 10 * SCALE);
@@ -643,40 +639,34 @@ function drawMainMenu() {
             const optionWidth = measurePixelText(shortLabels[index]);
             drawPixelText(ctx, shortLabels[index], menuX + (menuWidth - optionWidth) / 2, optionY - 4, SCALE, textColor);
             
-            // Optionnel : Ajouter un petit indicateur ">" pour l'option sélectionnée
             if (index === mainMenu.selectedOption) {
                 drawPixelText(ctx, ">", menuX + 12, optionY - 4, SCALE, textColor);
                 drawPixelText(ctx, "<", menuX + menuWidth - 18, optionY - 4, SCALE, textColor);
             }
         });
         
-        // Instructions courtes
         drawPixelText(ctx, "A: OK", (SCREEN_WIDTH - measurePixelText("A: OK")) / 2, SCREEN_HEIGHT - 12, SCALE, 2);
     }
     
-    // Version
     drawPixelText(ctx, "V1.0", SCREEN_WIDTH - 24, SCREEN_HEIGHT - 10, SCALE, 1);
 }
 
-// Gérer les actions du menu principal
 function handleMainMenuAction(action) {
     switch(action) {
         case 'new':
-            // Nouvelle partie
             startNewGame();
             break;
         case 'load':
-            // Ouvrir le menu de chargement
             if (saveExists(1) || saveExists(2) || saveExists(3)) {
                 mainMenu.selectedOption = 0;
                 showSaveMenu('load');
                 saveMenu.fromMainMenu = true;
             } else {
-                startDialogue("PAS DE SAVE!"); // Message court
+                startDialogue("PAS DE SAVE!");
             }
             break;
         case 'options':
-            startDialogue("BIENTOT!"); // Message court
+            startDialogue("BIENTOT!");
             break;
         case 'credits':
             mainMenu.showingCredits = true;
